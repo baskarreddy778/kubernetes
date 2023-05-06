@@ -235,5 +235,35 @@ kubectl get pod -o wide
 
 
 
+Task 6: Taint and tolerations
 
+taint node
+
+kubectl taint node node-name key=value:effect
+kubectl taint node node-name data=test:NoExecute
+
+NoSchedule, PreferNoSchedule, NoExecute
+
+vi tpod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: con1
+    image: nginx:latest
+  tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Equal"
+#    value: "test"
+    effect: "NoSchedule"
+	
+  
+  
+  kubectl create -f tpod.yaml
+  
+  kubectl get pods -o wide
+  your pod is in master node
+  
 
