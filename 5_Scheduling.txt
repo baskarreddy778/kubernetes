@@ -90,7 +90,7 @@ remove label first
 kubectl label nodes <node_name> disktype-
 
 
-vi aff-na-pod2.yaml
+vi node-aff-req.yaml
 
 apiVersion: v1
 kind: Pod
