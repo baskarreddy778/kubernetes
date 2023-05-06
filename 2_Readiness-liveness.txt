@@ -109,7 +109,7 @@ kubectl describe pod liveness-tcp
 
 kubectl get pods
 
-
+Lab 5. Readiness 
 
 vi readiness.yaml
 
