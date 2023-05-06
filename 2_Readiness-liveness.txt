@@ -5,7 +5,9 @@ Liveness, Readiness and Startup Probes
 •	HTTPGetAction 
 		  
 Lab 4: Liveness and Readiness probes
-		  
+	
+Task: 1 exec probe
+
 vi liveness-pod.yaml
 
 apiVersion: v1
@@ -50,7 +52,64 @@ kubectl exec -it readiness-pod -- sh
 kubectl get pods
 you can see pod is getting restarted
 
+ Task: 2 http probe
  
+ vi liveness-http.txt
+ 
+ apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: lns
+  name: liveness-http
+spec:
+  containers:
+  - name: liveness
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
+kubectl create -f liveness-http.txt
+
+kubectl describe pod liveness-http
+
+kubectl get pods
+
+Task: 3 tcpsocket probe
+
+
+vi liveness-tcp.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: lns
+  name: liveness-tcp
+spec:
+  containers:
+  - name: liveness
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    livenessProbe:
+      tcpSocket:
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5
+kubectl create -f liveness-tcp.txt
+
+kubectl describe pod liveness-tcp
+
+kubectl get pods
+
+
 
 vi readiness.yaml
 
