@@ -70,3 +70,12 @@ kubectl describe networkpolicies backend-policy
 kubectl run --rm -it --image=busybox --labels role=frontend net-policy
 wget -qO- -T3 http://backend
 exit
+
+create pod again with different label it will block access
+
+kubectl run --rm -it --image=busybox --labels role=frontend2 net-policy
+wget -qO- -T3 http://backend
+exit
+
+
+
