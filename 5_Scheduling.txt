@@ -266,4 +266,9 @@ spec:
   kubectl get pods -o wide
   your pod is in master node
   
+  
+  Remove Taint 
+  
+  kubectl taint node node1 data-
+  
 
