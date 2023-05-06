@@ -203,3 +203,37 @@ kubectl get pod -o wide
 
 
 kubectl delete -f  pod-antiaff.yaml
+
+
+Task: 5 pod affinity / anti affinity preferred during scheduling 
+
+vi aff-pa-pref.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pa-nginx-pref
+spec:
+  containers:
+  - name: pa-nginx-ctr2
+    image: nginx
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - pa-nginx-app
+          topologyKey: kubernetes.io/hostname
+
+kubectl create -f  aff-pa-pref.yaml
+kubectl get pod -o wide 
+
+
+
+
+
