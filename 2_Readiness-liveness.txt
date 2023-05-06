@@ -123,26 +123,28 @@ spec:
   containers:
   - name: readiness
     image: nginx
-    args:
-    - /bin/bash
-    - -c
-    - service nginx start; touch /readiness; sleep 6000
+    ports:
+    - containerPort: 80
     readinessProbe:
       exec:
         command:
         - cat
-        - /readiness
+        - /usr/share/nginx/html/index.html
       initialDelaySeconds: 5
       periodSeconds: 5
 	  
 kubectl create -f readiness.yaml
 kubectl get pods
 
+kubectl expose pod readiness-pod
+
+kubectl describe svc readiness-svc
+see endpoint in service 
 
 login inside pod and delete folloing file 
 
 kubectl exec -it readiness-pod bash 
-# rm -f /readiness
+# rm -f /usr/share/nginx/html/index.html
 # exit
 
 
