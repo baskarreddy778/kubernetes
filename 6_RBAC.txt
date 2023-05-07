@@ -1,0 +1,124 @@
+Lab 5: Resource Quotas in Kubernetes
+
+Task 1: Creating a Namespace
+kubectl create namespace quotas
+kubectl get ns
+kubectl describe ns quotas
+
+Task 2: Creating a resourcequota
+
+vi rq-quotas.yaml
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: quota
+  namespace: quotas
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+
+kubectl create -f rq-quotas.yaml
+kubectl describe ns resourcequota
+
+
+
+
+Task 3: Verify resourcequota Functionality
+
+vi rq-pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: quota-pod
+  namespace: quotas
+spec:
+  containers:
+  - name: quota-ctr
+    image: nginx
+    resources:
+      limits:
+        memory: "800Mi"
+        cpu: "1000m"
+      requests:
+        memory: "600Mi"
+        cpu: "350m"
+    ports:
+      - containerPort: 80
+	  
+kubectl create -f rq-pod.yaml
+kubectl describe ns resourcequota
+kubectl get resourcequota -n quotas -o yaml
+
+
+Task 4: Limiting Number of Pods
+
+kubectl edit resourcequotas quota -n quotas
+add following lines in spec: > hard:
+count/deployments.apps: 2
+count/replicasets.apps: 3
+
+Task 5: Clean-up
+1.	Delete the quota to clean up.
+$ kubectl delete ns quotas
+
+
+
+Task 6: Limit Range
+
+vi limit.yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  namespace: quotas
+spec:
+   limits:
+   - default:
+       cpu: "200m"
+       memory: "512Mi"
+     defaultRequest:
+       cpu: "100m"
+       memory: "128Mi"
+     type: Container
+
+kubectl create -f limit.yaml
+kubectl describe ns quotas
+kubectl get limitranges
+
+Task: 6 Create pod without resource configuration and describe that pod
+to see limit range is adding resource by it self 
+
+vi res-pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: myapp
+  name: res-limit-pod
+  namespace: quotas
+spec:
+  containers:
+  - name: con1
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "200m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+  - name: con2
+    image: tomcat
+    ports:
+    - containerPort: 8080
+
+kubectl create -f res-pod.yaml
+kubectl describe pod res-limit-pod -n quotas
