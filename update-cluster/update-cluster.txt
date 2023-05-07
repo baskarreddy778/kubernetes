@@ -1,0 +1,127 @@
+
+
+Create new cluster using userdata-kubeadm.sh script
+available in same dir...
+
+
+Current version of cluster is v1.25.0-00
+we will upgrade it to v1.26.0-00
+
+Check which version needs to upgrade  v1.24.0-00
+
+apt update
+apt-cache madison kubeadm
+
+select version 
+
+apt-mark unhold kubeadm && \
+apt-get update && apt-get install -y kubeadm=1.26.0-00 && \
+apt-mark hold kubeadm
+
+
+Drain the control plane node:
+kubectl drain <Node-Name> --ignore-daemonsets --delete-local-data
+
+
+kubeadm upgrade plan
+#################   output of (kubeadm upgrade plan) command ############################
+COMPONENT   CURRENT       TARGET
+kubelet     3 x v1.25.0   v1.26.4
+
+Upgrade to the latest stable version:
+
+COMPONENT                 CURRENT   TARGET
+kube-apiserver            v1.25.9   v1.26.4
+kube-controller-manager   v1.25.9   v1.26.4
+kube-scheduler            v1.25.9   v1.26.4
+kube-proxy                v1.25.9   v1.26.4
+CoreDNS                   v1.9.3    v1.9.3
+etcd                      3.5.4-0   3.5.6-0
+
+You can now apply the upgrade by executing the following command:
+
+        kubeadm upgrade apply v1.26.4
+     -------------------------------
+Note: Before you can perform this upgrade, you have to update kubeadm to v1.26.4.
+-------------------------------------------------------------------------------------
+############################################################################################
+
+as per planned upgrade again update kubeadm using this command 
+
+apt-mark unhold kubeadm && \
+apt-get update && apt-get install -y kubeadm=1.26.4-00 && \
+apt-mark hold kubeadm
+
+
+kubeadm upgrade apply v1.26.4
+
+
+this will upgrade your Master node 
+
+
+Now upgrade kubelet 
+apt upgrade kubelet=1.26.4-00
+
+
+restart kubelet
+systemctl daemon-reload
+systemctl restart kubelet.servic
+
+root@master:~# kubectl get nodes
+NAME     STATUS                        ROLES                  AGE   VERSION
+master   NotReady,SchedulingDisabled   control-plane,master   28m   v1.23.17
+node1    Ready                         <none>                 19m   v1.23.0
+node2    Ready                         <none>                 19m   v1.23.0
+
+Enable Scheduling on master
+kubectl uncordon master
+
+
+
+#######################  Worker Node Upgrade ###################
+
+Drain the node
+Upgrade kubeadm on the node
+Upgrade the kubelet configuration (kubeadm upgrade node)
+Upgrade kubelet & kubectl
+Uncordon the node
+
+
+
+Drain the  node1 from master node :
+kubectl drain node1 --ignore-daemonsets --delete-local-data
+
+run following commands in worker node node1
+apt-mark unhold kubeadm && \
+apt-get update && apt-get install -y kubeadm=1.26.3-00 && \
+apt-mark hold kubeadm
+
+root@node1:~# kubeadm upgrade node
+
+
+apt-mark unhold kubelet kubectl && \
+apt-get update && apt-get install -y kubelet=1.26.4-00 kubectl=1.26.4-00 && \
+apt-mark hold kubelet kubectl
+
+
+systemctl daemon-reload
+systemctl restart kubelet
+
+
+uncordon node1 from master node 
+kubectl uncordon node1
+
+root@master:~# kubectl get nodes
+NAME     STATUS                     ROLES           AGE   VERSION
+master   Ready                      control-plane   30m   v1.26.4
+node1    Ready,SchedulingDisabled   <none>          28m   v1.26.4
+node2    Ready                      <none>          27m   v1.25.0
+root@master:~#
+
+
+
+
+
+
+
+
