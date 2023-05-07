@@ -317,17 +317,19 @@ kubectl delete -f ds-pod.yaml
 **** Helm Chart ****
 
 Installing Helm 3 in Ubuntu Linux and installing wordpress (LAMP) application through Helm.
-
-wget files.cloudthat.training/devops/kubernetes-essentials/helm.sh
-cat helm.sh
-bash helm.sh
+apt update && apt install wget -y
+wget https://get.helm.sh/helm-v3.11.3-linux-386.tar.gz
+tar -xzvf helm-v3.11.3-linux-386.tar.gz
+cd linux-386/
+ls
+mv helm /bin/
 helm version
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 helm repo list
+helm search repo bitnami/mysql
 helm search repo wordpress
 helm install wordpress-chart bitnami/wordpress
 Helm ls
 helm uninstall wordpress-chart
-
 
