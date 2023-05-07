@@ -1,0 +1,154 @@
+######
+Step 1
+######
+create common security group for all 5 instance 
+paste userdata-kubeadm-containerd-install.sh script in user-data section 
+and create 5 instances 
+
+######
+Step 2
+######
+
+Login to haproxy node
+update hostname
+
+hostnamectl set-hostname haproxy
+
+logout and relogin into server  to see newly configured hostname
+
+download following script to install haproxy server
+
+wget https://raw.githubusercontent.com/eraneeshansari/script/main/haproxy-setup.sh
+
+bash haproxy.sh
+
+Enter both master nodes private IP address
+
+#######
+step 2
+#######
+
+login to master1 node and update hostname
+
+
+hostnamectl set-hostname master1
+
+logout and relogin into server  to see newly configured hostname
+
+ kubeadm init --control-plane-endpoint "<HAProxy_instance_PrivateIP>:6443" --upload-certs
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+You can now join any number of the control-plane node running the following command on each as root:
+
+  kubeadm join 172.31.14.132:6443 --token ktimu7.m1ifntvjqxdfsnsl \
+        --discovery-token-ca-cert-hash sha256:912185c5584fd9bd44d1da262dfe47d8a99b0175a4a69d5c7663e692a65bf35c \
+        --control-plane --certificate-key 960131b39b2514d87d36710a584ecc74f4662d894e2ee30442372e3ad88b3e79
+
+Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
+As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
+"kubeadm init phase upload-certs --upload-certs" to reload certs afterward.
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 172.31.14.132:6443 --token ktimu7.m1ifntvjqxdfsnsl \
+        --discovery-token-ca-cert-hash sha256:912185c5584fd9bd44d1da262dfe47d8a99b0175a4a69d5c7663e692a65bf35c
+
+
+deploy CNI KUBENET
+
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml 
+
+
+
+
+#######
+step 3
+#######
+
+login to master2 node and update hostname
+
+
+hostnamectl set-hostname master2
+
+logout and relogin into server  to see newly configured hostname
+
+paste master nodes token here 
+
+
+  kubeadm join 172.31.14.132:6443 --token ktimu7.m1ifntvjqxdfsnsl \
+        --discovery-token-ca-cert-hash sha256:912185c5584fd9bd44d1da262dfe47d8a99b0175a4a69d5c7663e692a65bf35c \
+        --control-plane --certificate-key 960131b39b2514d87d36710a584ecc74f4662d894e2ee30442372e3ad88b3e79
+		
+
+
+
+
+#######
+step 4
+#######
+
+login to node1 node and update hostname
+
+
+hostnamectl set-hostname node
+
+logout and relogin into server  to see newly configured hostname
+
+paste worker nodes token here 
+
+
+
+  kubeadm join 172.31.14.132:6443 --token ktimu7.m1ifntvjqxdfsnsl \
+        --discovery-token-ca-cert-hash sha256:912185c5584fd9bd44d1da262dfe47d8a99b0175a4a69d5c7663e692a65bf35c \
+        --control-plane --certificate-key 960131b39b2514d87d36710a584ecc74f4662d894e2ee30442372e3ad88b3e79
+		
+		
+
+#######
+step 5
+#######
+
+login to node1 node and update hostname
+
+
+hostnamectl set-hostname node2
+
+logout and relogin into server  to see newly configured hostname
+
+paste worker nodes token here 
+
+
+
+  kubeadm join 172.31.14.132:6443 --token ktimu7.m1ifntvjqxdfsnsl \
+        --discovery-token-ca-cert-hash sha256:912185c5584fd9bd44d1da262dfe47d8a99b0175a4a69d5c7663e692a65bf35c \
+        --control-plane --certificate-key 960131b39b2514d87d36710a584ecc74f4662d894e2ee30442372e3ad88b3e79
+
+
+
+######
+Step 6
+######
+
+
+login to master node and run following command
+
+kubectl get nodes
+you can see all nodes here 
+
+######
+Step 7
+######
+
+Access cluster from HAProxy server
+login to haproxy server create .kube/config file 
+copy content of .kube/config file from master1 
+create following dir/file
+
+ mkdir -p $HOME/.kube
+ cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+ 
+ kubectl get nodes
+ 
+ 
